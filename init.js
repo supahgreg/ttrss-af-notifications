@@ -61,7 +61,7 @@ require(['dojo/_base/kernel', 'dojo/ready'], (dojo, ready) => {
 
 				window.setInterval(() => {
 					Plugins.Af_Notifications.checkNotifications();
-				}, 60 * 1000);
+				}, 60E3);
 			}
 		});
 	});
