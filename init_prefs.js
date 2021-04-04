@@ -17,7 +17,7 @@ Plugins.Af_Notifications = {
 			default:
 				content += '<div class="alert alert-info"><a href="#" onclick="Plugins.Af_Notifications.requestPermission(); return false">' +
 					__('Click here to accept receiving notifications from this site.') +
-					'</a>';
+					'</a></div>';
 		}
 		Plugins.Af_Notifications._node.attr('content', content);
 	},
