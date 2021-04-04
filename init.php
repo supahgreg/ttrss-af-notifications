@@ -114,6 +114,7 @@ class Af_Notifications extends Plugin {
 		]);
 	}
 
+
 	function hook_unsubscribe_feed($feed_id, $owner_uid) {
 		$this->remove_feed_notifications($feed_id);
 	}
@@ -138,6 +139,7 @@ class Af_Notifications extends Plugin {
 			array_slice($notifications, 0, self::DEFAULT_MAX_NOTIFICATIONS_STORED));
 	}
 
+
 	private function remove_feed_notifications($feed_id) {
 		$notifications = array_values(array_filter(
 			$this->get_stored_array('notifications'), function($n) use ($feed_id) {
@@ -147,6 +149,7 @@ class Af_Notifications extends Plugin {
 
 		$this->host->set($this, 'notifications', $notifications);
 	}
+
 
 	private function get_stored_array(string $name) {
 		$tmp = $this->host->get($this, $name);

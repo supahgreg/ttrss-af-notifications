@@ -26,7 +26,6 @@ Plugins.Af_Notifications = {
 	},
 
 	showNotifications: (notifications) => {
-
 		notifications.forEach((n, index) => {
 			if (!Plugins.Af_Notifications.canNotify(n)) return;
 
