@@ -32,7 +32,7 @@ Plugins.Af_Notifications = {
 			switch (n.type) {
 				case 'js_api': {
 					window.setTimeout(() => {
-						const body = __('<b>{0}:</b> "{1}" matched a filter!')
+						const body = __('{0}: "{1}" matched a filter!')
 							.replace('{0}', n.feed_title)
 							.replace('{1}', n.article_title);
 
