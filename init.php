@@ -35,6 +35,11 @@ class Af_Notifications extends Plugin {
 	}
 
 
+	function get_prefs_js() {
+		return file_get_contents(__DIR__ . '/init_prefs.js');
+	}
+
+
 	function hook_prefs_tab($args) {
 		if ($args != 'prefPrefs') return;
 		?>
@@ -46,37 +51,8 @@ class Af_Notifications extends Plugin {
 					return;
 				}
 
-				// TODO: why isn't "Af_Notifications" accessible when in a separate script block?
-				window.Af_Notifications = {
-					_node: null,
-					setPrefNode: (node) => { Af_Notifications._node = node },
-
-					refreshPrefNodeContent: () => {
-						let content = '';
-						switch (Notification.permission) {
-							case 'granted':
-								content += '<?= format_notice(__('You have accepted receiving notifications.  Add a filter action in Filters to get started!')) ?>';
-								break;
-							case 'denied':
-								content += '<?= format_warning(__('Receiving notifications from this site has been denied.  ' .
-									'Remove the explicit block in your browser and click the link below to continue.')) ?>';
-							default:
-								content += '<?= format_notice('<a href="#" onclick="Af_Notifications.requestPermission(); return false">' .
-									__('Click here to accept receiving notifications from this site.') .
-									'</a>') ?>';
-						}
-						Af_Notifications._node.attr('content', content);
-					},
-
-					requestPermission: () => {
-						Notification.requestPermission((permission) => {
-							Af_Notifications.refreshPrefNodeContent();
-						});
-					},
-				};
-
-				Af_Notifications.setPrefNode(this);
-				Af_Notifications.refreshPrefNodeContent();
+				Plugins.Af_Notifications.setPrefNode(this);
+				Plugins.Af_Notifications.refreshPrefNodeContent();
 			</script>
 			<span class='loading'><?= __('Loading, please wait...') ?></span>
 		</div>
@@ -128,7 +104,6 @@ class Af_Notifications extends Plugin {
 	private function add_notification(array $article, string $notification_type) {
 		$notifications = $this->get_stored_array('notifications');
 
-		// TODO: check for duplicates
 		$notification = [
 			'type' => $notification_type,
 			'article_guid_hashed' => $article['guid_hashed'],
@@ -138,7 +113,7 @@ class Af_Notifications extends Plugin {
 
 		array_unshift($notifications, $notification);
 
-		// TODO: allow customizing the number of notifications stored
+		// TODO: allow customizing the number of notifications stored?
 		$this->host->set($this, 'notifications',
 			array_slice($notifications, 0, self::DEFAULT_MAX_NOTIFICATIONS_STORED));
 	}
