@@ -133,7 +133,6 @@ class Af_Notifications extends Plugin {
 			'type' => $notification_type,
 			'article_guid_hashed' => $article['guid_hashed'],
 			'article_title' => $article['title'],
-			'article_link' => $article['link'],
 			'feed_id' => $article['feed']['id'],
 		];
 
