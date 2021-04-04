@@ -38,7 +38,7 @@ class Af_Notifications extends Plugin {
 	function hook_prefs_tab($args) {
 		if ($args != 'prefPrefs') return;
 		?>
-		
+
 		<div dojoType='dijit.layout.AccordionPane'
 			title='<i class="material-icons">extension</i> <?= __('Notification Settings (af_notifications)') ?>'>
 			<script type='dojo/method' event='onSelected' args='evt'>
@@ -62,7 +62,7 @@ class Af_Notifications extends Plugin {
 									'Remove the explicit block in your browser and click the link below to continue.')) ?>';
 							default:
 								content += '<?= format_notice('<a href="#" onclick="Af_Notifications.requestPermission(); return false">' .
-									__('Click here to accept receiving notifications from this site.') . 
+									__('Click here to accept receiving notifications from this site.') .
 									'</a>') ?>';
 						}
 						Af_Notifications._node.attr('content', content);
@@ -95,6 +95,7 @@ class Af_Notifications extends Plugin {
 
 
 	function get_notifications() {
+		$feed_title_cache = [];
 		$notifications = $this->get_stored_array('notifications');
 
 		if (count($notifications)) {
@@ -102,12 +103,16 @@ class Af_Notifications extends Plugin {
 		}
 
 		foreach ($notifications as &$notification) {
-			$feed = ORM::for_table('ttrss_feeds')
-				->select('title')
-				->find_one($notification['feed_id']);
+			$feed_id = $notification['feed_id'];
+			if (!array_key_exists($feed_id, $feed_title_cache)) {
+				$feed = ORM::for_table('ttrss_feeds')
+					->select('title')
+					->find_one($feed_id);
 
-			$notification['feed_title'] = $feed ? $feed->title : __('Unsubscribed Feed');
-		} 
+				$feed_title_cache[$feed_id] = $feed ? $feed->title : __('Unsubscribed Feed');
+			}
+			$notification['feed_title'] = $feed_title_cache[$feed_id];
+		}
 
 		print json_encode([
 			'notifications' => $notifications,
