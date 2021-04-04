@@ -24,6 +24,7 @@ class Af_Notifications extends Plugin {
 		$this->host = $host;
 
 		$host->add_hook($host::HOOK_PREFS_TAB, $this);
+		$host->add_hook($host::HOOK_UNSUBSCRIBE_FEED, $this);
 
 		$host->add_filter_action($this, 'action_js_api_notify', __('JS Notifications API'));
 	}
@@ -101,15 +102,20 @@ class Af_Notifications extends Plugin {
 		}
 
 		foreach ($notifications as &$notification) {
-			$notification['feed_title'] = ORM::for_table('ttrss_feeds')
+			$feed = ORM::for_table('ttrss_feeds')
 				->select('title')
-				->find_one($notification['feed_id'])
-				->title;
+				->find_one($notification['feed_id']);
+
+			$notification['feed_title'] = $feed ? $feed->title : __('Unsubscribed Feed');
 		} 
 
 		print json_encode([
 			'notifications' => $notifications,
 		]);
+	}
+
+	function hook_unsubscribe_feed($feed_id, $owner_uid) {
+		$this->remove_feed_notifications($feed_id);
 	}
 
 
@@ -130,6 +136,16 @@ class Af_Notifications extends Plugin {
 		// TODO: allow customizing the number of notifications stored
 		$this->host->set($this, 'notifications',
 			array_slice($notifications, 0, self::DEFAULT_MAX_NOTIFICATIONS_STORED));
+	}
+
+	private function remove_feed_notifications($feed_id) {
+		$notifications = array_values(array_filter(
+			$this->get_stored_array('notifications'), function($n) use ($feed_id) {
+				return $n['feed_id'] != $feed_id;
+			}
+		));
+
+		$this->host->set($this, 'notifications', $notifications);
 	}
 
 	private function get_stored_array(string $name) {
