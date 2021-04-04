@@ -1,4 +1,4 @@
-/* global __, App, PluginHost, Plugins, require, xhr */
+/* global __, App, Feeds, PluginHost, Plugins, require, xhr */
 
 Plugins.Af_Notifications = {
 	self: this,
@@ -36,12 +36,13 @@ Plugins.Af_Notifications = {
 							.replace('{0}', n.feed_title)
 							.replace('{1}', n.article_title);
 
-						// eslint-disable-next-line no-new
-						new Notification(__('[tt-rss] Article Notification'), {
+						const notification = new Notification(__('[tt-rss] Article Notification'), {
 							body,
 							icon: 'images/favicon-72px.png',
 							tag: n.article_guid_hashed,
 						});
+
+						notification.addEventListener('click', () => { Feeds.open({feed: n.feed_id}) });
 					}, 200*index);
 					break;
 				}
