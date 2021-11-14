@@ -1,6 +1,6 @@
 <?php
 class Af_Notifications extends Plugin {
-	private $host;
+	private PluginHost $host;
 	private const DEFAULT_MAX_NOTIFICATIONS_STORED = 20;
 
 
@@ -20,9 +20,13 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	function init(PluginHost $host) {
+	/**
+	 * @param PluginHost $host
+	 *
+	 * @return void
+	 **/
+	function init($host) {
 		$this->host = $host;
-
 		$host->add_hook($host::HOOK_PREFS_TAB, $this);
 		$host->add_hook($host::HOOK_UNSUBSCRIBE_FEED, $this);
 
@@ -40,8 +44,12 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	function hook_prefs_tab($args) {
-		if ($args != 'prefPrefs') return;
+	/**
+	 * @param string $tab
+	 * @return void
+	 */
+	function hook_prefs_tab($tab) {
+		if ($tab != 'prefPrefs') return;
 		?>
 
 		<div dojoType='dijit.layout.AccordionPane'
@@ -60,7 +68,12 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	function hook_article_filter_action(array $article, string $action) {
+	/**
+	 * @param array<string,mixed> $article
+	 * @param string $action
+	 * @return array<string,mixed> ($article)
+	 */
+	function hook_article_filter_action($article, $action) {
 		switch ($action) {
 			case 'action_js_api_notify':
 				$this->add_notification($article, 'js_api');
@@ -70,7 +83,7 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	function get_notifications() {
+	function get_notifications(): void {
 		$feed_title_cache = [];
 		$notifications = $this->get_stored_array('notifications');
 
@@ -96,12 +109,20 @@ class Af_Notifications extends Plugin {
 	}
 
 
+	/**
+	 * @param int $feed_id
+	 * @param int $owner_uid
+	 * @return bool
+	 */
 	function hook_unsubscribe_feed($feed_id, $owner_uid) {
-		$this->remove_feed_notifications($feed_id);
+		return $this->remove_feed_notifications($feed_id);
 	}
 
 
-	private function add_notification(array $article, string $notification_type) {
+	/**
+	 * @param array<string, mixed> $article
+	 */
+	private function add_notification(array $article, string $notification_type): void {
 		$notifications = $this->get_stored_array('notifications');
 
 		$notification = [
@@ -119,7 +140,7 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	private function remove_feed_notifications($feed_id) {
+	private function remove_feed_notifications(int $feed_id): bool {
 		$notifications = array_values(array_filter(
 			$this->get_stored_array('notifications'), function($n) use ($feed_id) {
 				return $n['feed_id'] != $feed_id;
@@ -127,10 +148,15 @@ class Af_Notifications extends Plugin {
 		));
 
 		$this->host->set($this, 'notifications', $notifications);
+
+		return true;
 	}
 
 
-	private function get_stored_array(string $name) {
+	/**
+	 * @return array<int, array{'type': string, 'article_guid_hashed': string, 'article_title': string, 'feed_id': int}>
+	 */
+	private function get_stored_array(string $name): array {
 		$tmp = $this->host->get($this, $name);
 		return is_array($tmp) ? $tmp : [];
 	}
