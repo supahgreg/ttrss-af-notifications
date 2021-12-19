@@ -35,12 +35,12 @@ class Af_Notifications extends Plugin {
 
 
 	function get_js() {
-		return file_get_contents(__DIR__ . '/init.js');
+		return file_get_contents(__DIR__ . '/init.js') ?: '';
 	}
 
 
 	function get_prefs_js() {
-		return file_get_contents(__DIR__ . '/init_prefs.js');
+		return file_get_contents(__DIR__ . '/init_prefs.js') ?: '';
 	}
 
 
