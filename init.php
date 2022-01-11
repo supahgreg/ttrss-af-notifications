@@ -112,10 +112,13 @@ class Af_Notifications extends Plugin {
 	/**
 	 * @param int $feed_id
 	 * @param int $owner_uid
-	 * @return bool
+	 * @return false
 	 */
 	function hook_unsubscribe_feed($feed_id, $owner_uid) {
-		return $this->remove_feed_notifications($feed_id);
+		$this->remove_feed_notifications($feed_id);
+
+		// Returning true would indicate the plugin handled unsubscribing
+		return false;
 	}
 
 
@@ -140,7 +143,7 @@ class Af_Notifications extends Plugin {
 	}
 
 
-	private function remove_feed_notifications(int $feed_id): bool {
+	private function remove_feed_notifications(int $feed_id): void {
 		$notifications = array_values(array_filter(
 			$this->get_stored_array('notifications'), function($n) use ($feed_id) {
 				return $n['feed_id'] != $feed_id;
@@ -148,8 +151,6 @@ class Af_Notifications extends Plugin {
 		));
 
 		$this->host->set($this, 'notifications', $notifications);
-
-		return true;
 	}
 
 
